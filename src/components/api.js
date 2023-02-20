@@ -1,7 +1,7 @@
 import axios from "axios";
 
 
-export const fetchPhotos = async (search, page) => {
+export const fetchPhotos = async (search, numPage) => {
     const response = await axios.get(`https://pixabay.com/api/`, 
     {
         method: "get",
@@ -12,7 +12,7 @@ export const fetchPhotos = async (search, page) => {
             orientation: "horizontal",
             safesearch: true,
             per_page: 12,
-            page: page,
+            page: numPage,
         },
     });
    
