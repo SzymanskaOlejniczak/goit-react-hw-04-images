@@ -87,7 +87,10 @@ const onClose = () => {
         cards={cards} 
         onClick={toggleModal} />
         {loading && <Loader/>}
-        {cards.length > 0 && cards &&<Button onClick={onLoadMore} />}
+        {cards.length > 0 && !loading ?( 
+          <Button onClick={onLoadMore} />
+         ): ('')
+         }
         {showModal && (
           <Modal onClose={onClose} card={largeImageURL}  />)}
       </div>
