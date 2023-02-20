@@ -1,27 +1,26 @@
 import PropTypes from 'prop-types'
-import { ImageGalleryItem } from '../ImageGalleryItem/ImageGalleryItem'
+import  ImageGalleryItem  from '../ImageGalleryItem/ImageGalleryItem'
 import styles from './ImageGallery.module.css'
 
-export const ImageGallery=({ cards, onOpen })=> {
+export function ImageGallery ({cards, onClick}) {
     return (
         <ul className={styles.image_gallery}>
-             {cards.map(card => {
-                return (
+             {cards.map(({webformatURL, largeImageURL, id}) => (
                     <ImageGalleryItem 
-                        key={card.id} 
-                        webformatURL={card.webformatURL} 
-                        largeImageURL={card.largeImageURL} 
-                        onOpen={onOpen} 
+                        key={id} 
+                        webformatURL={webformatURL} 
+                        largeImageURL={largeImageURL} 
+                        onOpen={onClick} 
                     />
                 )
-             })
+             )
             }
         </ul>
     );
 };
 
 ImageGallery.propTypes = {
-    onOpen: PropTypes.func.isRequired,
+    onClick: PropTypes.func.isRequired,
     cards: PropTypes.arrayOf(PropTypes.shape({
         id: PropTypes.number.isRequired,
         webformatURL: PropTypes.string.isRequired,
