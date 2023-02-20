@@ -35,7 +35,7 @@ const [modalImage, setModalImage]=useState(null);
         Notiflix.Notify.failure('not found any picture!');
         return dataArray;
       };
-    
+    console.log(data)
       const newCards = await fetchPhotos(search, page);
       setCards({
         cards: [...cards, ...newCards]
@@ -80,19 +80,17 @@ const [modalImage, setModalImage]=useState(null);
   }
   
   
-  const toggleModal = () => {
-    setShowModal(!showModal)
+  const toggleModal = (card) => {
+    setShowModal(!showModal);
+    setModalImage(card)
   }
   
-  const openModal = (largeImageURL) => {
-    setModalImage(largeImageURL)
-    toggleModal()
-  }
+  
 
     return (
       <div className={styles.app}>
         <Searchbar onSubmit={onSubmit}  />
-        <ImageGallery cards={cards} onOpen={openModal} />
+        <ImageGallery cards={cards} onOpen={toggleModal} />
         {loading && <Loader/>}
         {cards.length > 1 && cards &&<Button onLoadMore={onLoadMore} />}
         {showModal && modalImage && (<Modal onClose={toggleModal} modalImage={modalImage} />)}
