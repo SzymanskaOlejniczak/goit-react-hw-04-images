@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react';
-import Notiflix from 'notiflix';
+import { useState} from 'react';
 import { ImageGallery } from "../ImageGallery/ImageGallery";
 import { Searchbar } from "../SearchBar/SearchBar";
 import { Button } from '../Button/Button';
@@ -11,89 +10,79 @@ import styles from './App.module.css'
 export const App =()=> {
 
 const [cards, setCards]=useState([]);
-const [search, setSearch]=useState("");
-const [error, setError]=useState("");
-const [loading, setLoading]=useState(false);
 const [page, setPage]=useState(1);
+const [search, setSearch]=useState("");
+const [loading, setLoading]=useState(false);
+const [error, setError]=useState(null);
 const [showModal, setShowModal]=useState(false);
-const [modalImage, setModalImage]=useState(null);
+const [largeImageURL, setLargeImageURL]=useState("");
 
    
-  useEffect(()=> {
-    if (search !== '') {
-      setTimeout(fetchPosts(), 600) 
-    }
-  })
- const fetchPosts = async() => {
-    
-    try {
-      const data = await fetchPhotos(search, page);
-      const dataArray = [];
-      data.map(({ id, webformatURL, largeImageURL }) => dataArray.push({ id, webformatURL, largeImageURL })
-      )
-      if (dataArray.length === 0) {
-        Notiflix.Notify.failure('not found any picture!');
-        return dataArray;
-      };
-    console.log(data)
-      const newCards = await fetchPhotos(search, page);
-      setCards({
-        cards: [...cards, ...newCards]
-            }
-          
-        )
-        console.log(newCards)
-      }
-      catch (error) {
-        setError(error 
-        )
-      }
-      finally {setLoading( false  
-        )
-      }
-
+const onSubmit = () => {
+  if (search) {
+      const firstPage = 1;
+      setCards([]);
+      setPage(firstPage);
+      fetchSearch(firstPage);
   }
-  useEffect(() => {
-    if (error) {
-      console.log(error)
-    }
-  },[error])
+};
 
-  const onSubmit = (e) => {
-    e.preventDefault()
-    const searchValue = e.target.elements.searchInput.value
-    if (searchValue !== "" && searchValue !== search) {
-      setCards([])
-      setSearch(searchValue)
-      setPage(1)
-      setError('')
-      setLoading(true)
-     
-    } else if (searchValue === "") {
-      Notiflix.Notify.info('input is empty!');
-    }  
+const onInputChange = (e) => {
+  setSearch(e.target.value.toLowerCase());
+};
+
+const handleSubmit = (event) => {
+  event.preventDefault();
+
+  if (search.trim() === "") {
+      alert.error("Enter your search query");
+      return;
   }
 
- const onLoadMore = () => {
-    setPage(page + 1)
-    setLoading(true)
-  }
-  
-  
-  const toggleModal = (card) => {
-    setShowModal(!showModal);
-    setModalImage(card)
-  }
-  
-  
+  onSubmit(search);
+};
 
-    return (
+const fetchSearch = async (numPage) => {
+  setLoading(true);
+  setError(null);
+  try {
+      const response = await fetchPhotos(search, numPage);
+      setCards((prevState) => [...prevState, ...response]);
+  } catch (error) {
+      setError(error);
+  } finally {
+      setLoading(false);
+  }
+};
+
+const onLoadMore = () => {
+  setPage(page + 1);
+  fetchSearch(page + 1);
+};
+
+const toggleModal = (url) => {
+  setShowModal(true);
+  setLargeImageURL(url);
+};
+
+const onClose = () => {
+  setShowModal(false);
+  setLargeImageURL("");
+};
+  return (
       <div className={styles.app}>
-        <Searchbar onSubmit={onSubmit}  />
-        <ImageGallery cards={cards} onOpen={toggleModal} />
+        {error && <p>Something went wrong: {error.message}</p>}
+        <Searchbar 
+           handleSubmit={handleSubmit}
+           onInputChange={onInputChange}
+           search={search} />
+        <ImageGallery 
+        cards={cards} 
+        onClick={toggleModal} />
         {loading && <Loader/>}
-        {cards.length > 1 && cards &&<Button onLoadMore={onLoadMore} />}
-        {showModal && modalImage && (<Modal onClose={toggleModal} modalImage={modalImage} />)}
+        {cards.length > 1 && cards &&<Button onClick={onLoadMore} />}
+        {showModal && (
+          <Modal onClose={onClose} card={largeImageURL}  />)}
       </div>
     );
 }
