@@ -1,4 +1,5 @@
 import { useState} from 'react';
+import Notiflix from 'notiflix';
 import { ImageGallery } from "../ImageGallery/ImageGallery";
 import { Searchbar } from "../SearchBar/SearchBar";
 import { Button } from '../Button/Button';
@@ -33,12 +34,10 @@ const onInputChange = (e) => {
 
 const handleSubmit = (event) => {
   event.preventDefault();
-
   if (search.trim() === "") {
-      alert.error("Enter your search query");
-      return;
-  }
-
+    alert.error("Enter your search query");
+    return;
+}
   onSubmit(search);
 };
 
@@ -47,6 +46,14 @@ const fetchSearch = async (numPage) => {
   setError(null);
   try {
       const response = await fetchPhotos(search, numPage);
+      const dataArray = [];
+      response.map(({ id, webformatURL, largeImageURL }) =>dataArray.push({ id, webformatURL, largeImageURL })
+      )
+      if (dataArray.length === 0) {
+        Notiflix.Notify.failure('not found any picture!');
+        return dataArray;
+      };
+
       setCards((prevState) => [...prevState, ...response]);
   } catch (error) {
       setError(error);
@@ -80,7 +87,7 @@ const onClose = () => {
         cards={cards} 
         onClick={toggleModal} />
         {loading && <Loader/>}
-        {cards.length > 1 && cards &&<Button onClick={onLoadMore} />}
+        {cards.length > 0 && cards &&<Button onClick={onLoadMore} />}
         {showModal && (
           <Modal onClose={onClose} card={largeImageURL}  />)}
       </div>
